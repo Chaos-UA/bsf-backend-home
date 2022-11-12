@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import java.time.LocalDateTime
 
 class TransactionApiTest @Autowired constructor(
     val mockMvc: MockMvc,
@@ -45,7 +46,7 @@ class TransactionApiTest @Autowired constructor(
             assertThat(get("operationType").textValue()).isEqualTo(transaction.operationType.toString())
             assertThat(get("description").textValue()).isEqualTo(transaction.description)
             assertThat(get("amount").intValue()).isEqualTo(transaction.amount)
-            assertThat(get("createdAt").textValue()).isEqualTo(transaction.createdAt.toString())
+            assertThat(LocalDateTime.parse(get("createdAt").textValue())).isEqualTo(transaction.createdAt)
         }
     }
 }

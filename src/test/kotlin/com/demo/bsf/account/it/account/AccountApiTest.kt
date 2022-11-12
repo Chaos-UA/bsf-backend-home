@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import java.time.LocalDateTime
 
 class AccountApiTest @Autowired constructor(
     val mockMvc: MockMvc,
@@ -32,8 +33,8 @@ class AccountApiTest @Autowired constructor(
             assertThat(get("id").textValue()).isEqualTo(account.id.toString())
             assertThat(get("ownerId").textValue()).isEqualTo(account.ownerId.toString())
             assertThat(get("balanceAmount").intValue()).isEqualTo(account.balanceAmount)
-            assertThat(get("createdAt").textValue()).isEqualTo(account.createdAt.toString())
-            assertThat(get("modifiedAt").textValue()).isEqualTo(account.modifiedAt.toString())
+            assertThat(LocalDateTime.parse(get("createdAt").textValue())).isEqualTo(account.createdAt)
+            assertThat(LocalDateTime.parse(get("modifiedAt").textValue())).isEqualTo(account.modifiedAt)
         }
     }
 

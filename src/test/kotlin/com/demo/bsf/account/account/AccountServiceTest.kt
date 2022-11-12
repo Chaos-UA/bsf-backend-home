@@ -3,6 +3,7 @@ package com.demo.bsf.account.account
 import com.demo.bsf.account.account.dto.AccountMoneyTransferRequest
 import com.demo.bsf.account.db.gen.tables.records.AccountRecord
 import com.demo.bsf.account.exception.BadRequestException
+import com.demo.bsf.account.exception.ConflictException
 import com.demo.bsf.account.exception.NotFoundException
 import com.demo.bsf.account.gen.AccountRecordGen
 import com.demo.bsf.account.gen.TransactionRecordGen
@@ -127,7 +128,7 @@ class AccountServiceTest {
 
         // then
         assertThatThrownBy { unit.transferMoney(sourceAccount.id, request) }
-            .isInstanceOf(BadRequestException::class.java)
+            .isInstanceOf(ConflictException::class.java)
             .hasMessageContaining("Transaction with ID $transactionId already exist")
     }
 

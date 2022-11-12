@@ -5,6 +5,7 @@ import com.demo.bsf.account.account.dto.AccountMoneyTransferRequest
 import com.demo.bsf.account.db.gen.tables.records.AccountRecord
 import com.demo.bsf.account.db.gen.tables.records.TransactionRecord
 import com.demo.bsf.account.exception.BadRequestException
+import com.demo.bsf.account.exception.ConflictException
 import com.demo.bsf.account.exception.NotFoundException
 import com.demo.bsf.account.transaction.Transaction
 import com.demo.bsf.account.transaction.TransactionMapper
@@ -56,7 +57,7 @@ class AccountService @Autowired constructor(
         }
 
         if (request.transactionId?.let { transactionRepo.findById(it) } != null) {
-            throw BadRequestException("Transaction with ID ${request.transactionId} already exist")
+            throw ConflictException("Transaction with ID ${request.transactionId} already exist")
         }
 
         val transactionId: UUID = request.transactionId ?: UUID.randomUUID()
