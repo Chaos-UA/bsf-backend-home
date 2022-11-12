@@ -1,0 +1,223 @@
+openapi: 3.0.3
+info:
+  title: Account service API
+  description: |-
+    Describes API in account service.
+    The API is very simple and do not provide extra endpoints, pagination, filtering etc.
+    The API is designed to transfer money from source account to target account as an atomic operation 
+    and to keep history of transactions.
+    Currencies are not considered here.
+  termsOfService: http://swagger.io/terms/
+  contact:
+    email: apiteam@swagger.io
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.11
+externalDocs:
+  description: Find out more about Swagger
+  url: http://swagger.io
+servers:
+  - url: http://localhost/api/v1
+tags:
+  - name: account-service
+    description: Account service API
+paths:
+
+  /api/v1/accounts:
+    get:
+      tags:
+        - account-service
+      summary: List accounts
+      description: Get list of accounts
+      operationId: getAccounts
+      responses:
+        '200':
+          description: Retrieved list of account details
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Account'
+
+  /api/v1/accounts/{accountId}:
+    get:
+      tags:
+        - account-service
+      summary: Get an account
+      description: Get an existing account by ID
+      operationId: getAccount
+      parameters:
+        - name: accountId
+          in: path
+          description: ID of account to get
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Retrieved account
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: Account not found
+
+  /api/v1/accounts/{accountId}/transactions:
+    get:
+      tags:
+        - account-service
+      summary: List account related transactions
+      description: List account related transactions
+      operationId: listAccountTransactions
+      parameters:
+        - name: accountId
+          in: path
+          description: ID of account to list transactions for
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Retrieved list of account transactions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Transaction'
+        '400':
+          description: Invalid ID supplied
+
+  /api/v1/accounts/{accountId}/transfer-money:
+    post:
+      tags:
+        - account-service
+      summary: Transfer money from source account to target account
+      description: Transfer money from source account to target account
+      operationId: transferAccountMoney
+      parameters:
+        - name: accountId
+          in: path
+          description: ID of source account from which to take money and to transfer to target account
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        description: Create a new pet in the store
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountMoneyTransferRequest'
+        required: true
+      responses:
+        '200':
+          description: Money transferred successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+        '400':
+          description: Invalid request
+        '404':
+          description: Source/Target account not found
+
+components:
+  schemas:
+
+    Account:
+      type: object
+      required:
+        - id
+        - ownerId
+        - balanceAmount
+        - createdAt
+        - modifiedAt
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Account ID
+        ownerId:
+          type: string
+          format: uuid
+          description: Account owner ID
+        balanceAmount:
+          type: integer
+          format: int64
+          example: 1000000
+          description: Current account balance
+        createdAt:
+          type: string
+          format: date-time
+          description: Account creation datetime
+        modifiedAt:
+          type: string
+          format: date-time
+          description: Last account modification datetime
+
+    AccountMoneyTransferRequest:
+      type: object
+      required:
+        - targetAccountId
+        - amount
+      properties:
+        targetAccountId:
+          type: string
+          format: uuid
+          description: Target account ID to append money to
+        amount:
+          type: integer
+          format: int64
+          example: 100
+          description: Amount to be transferred from source account to target account
+        description:
+          type: string
+          description: Optional description for the operation
+          example: Money transfer to another account
+
+    Transaction:
+      type: object
+      required:
+        - id
+        - accountId
+        - operationType
+        - amount
+        - createdAt
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Transaction ID
+        accountId:
+          type: string
+          format: uuid
+          description: Account ID
+        sourceAccountId:
+          type: string
+          format: uuid
+          description: Optional. Present in case if operationType is `ACCOUNT_MONEY_TRANSFER`
+        operationType:
+          type: string
+          description: Operation type. Currently only `ACCOUNT_MONEY_TRANSFER` supported
+          enum:
+            - ACCOUNT_MONEY_TRANSFER
+        description:
+          type: string
+          description: Optional. Transaction description
+        amount:
+          type: integer
+          format: int64
+          example: 100
+          description: Amount in the transaction
+        createdAt:
+          type: string
+          format: date-time
+          description: Account creation datetime
